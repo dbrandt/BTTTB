@@ -1,29 +1,61 @@
 /*
-  BTTB - Better Than That Tennisball
-  
-  Sonar-fed LED indicator showing how far from the wall I am when parking my car.
-  The problem is usually solved by hanging a tennis ball in a piece of string so
-  it touches the windscreen when the front of the car is at a perfect distance
-  from the wall while still making it possible to close the garage door.
-  (http://lifehacker.com/5841166/penetrate-your-garage-safely-and-park-better-with-some-string-and-a-tennis-ball)
-  
-  I solved it this way since I'm not some cave man.
-  
-  Every 3 seconds a ping is sent if the circuit is passive. If no reply is recieved
-  or the same reply is recieved over and over again nothing happens. If the distance
-  changes the circuit will go into an active mode where pings are sent every .5 
-  seconds. An RGB-led will change from green to red as the object (car) nears the wall. 
-  If the object (car) gets closer than a certain value the LED starts flashing red.
-  If the same distance is reported for 10 seconds the circuit switches back to
-  passive mode.
+  BTTTB - Better Than That Tennis Ball
 */
 
-void setup() {
-  // put your setup code here, to run once:
+#define echo 2 // Echo Pin
+#define trigger 4 // Trigger Pin
+#define led_OK 13
+#define led_CLOSE 12
 
+volatile long echo_hit_time;
+volatile long echo_death_time;
+volatile int distance;
+
+void echo_int() {
+  switch (digitalRead(echo)) {
+    case HIGH:
+      echo_death_time = 0;
+      echo_hit_time = micros();
+      break;
+      
+    case LOW:
+      echo_death_time = micros();
+      distance = (echo_death_time - echo_hit_time)/58.2;
+      break;
+  }
+}
+
+void setup() {
+  echo_hit_time = echo_death_time = 0;
+  pinMode(trigger, OUTPUT);
+  pinMode(echo, INPUT);
+  pinMode(led_OK, OUTPUT);
+  pinMode(led_CLOSE, OUTPUT);
+  attachInterrupt(0, echo_int, CHANGE);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  // Trigger sonar 
+  digitalWrite(trigger, LOW); 
+  delayMicroseconds(2); 
+  digitalWrite(trigger, HIGH);
+  delayMicroseconds(10); 
+  digitalWrite(trigger, LOW);
+ 
+  if (distance > 200) {
+    digitalWrite(led_CLOSE, LOW);     
+    digitalWrite(led_OK, HIGH);  
+  } else if (distance < 100 && distance > 50) {
+    digitalWrite(led_CLOSE, HIGH);
+    digitalWrite(led_OK, HIGH);
+  } else if (distance < 50) {
+    digitalWrite(led_CLOSE, HIGH);
+    digitalWrite(led_OK, LOW);
+  } /*else {
+    digitalWrite(led_CLOSE, LOW);
+    digitalWrite(led_OK, LOW);
+  }*/
+   
+  delay(50);
 }
+
