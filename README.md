@@ -1,4 +1,5 @@
-# BTTB - Better Than That Tennisball 
+# BTTB
+## Better Than That Tennis Ball 
   
 Sonar-fed LED indicator showing how far from the wall I am when parking my car. The problem is usually solved by hanging a tennis ball in a piece of string so it touches the windscreen when the front of the car is at a perfect distance from the wall while still making it possible to close the garage door.
 (see http://lifehacker.com/5841166/penetrate-your-garage-safely-and-park-better-with-some-string-and-a-tennis-ball)
